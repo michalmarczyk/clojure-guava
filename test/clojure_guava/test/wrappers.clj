@@ -63,7 +63,7 @@
   (doseq [mm (->> [f/into-guava-immutable-list-multimap
                    f/into-guava-immutable-multimap
                    f/into-guava-immutable-set-multimap]
-                  (map #(% [[:foo 1] [:bar 2] [:foo 3]]))
+                  (map #(% [[:foo [1]] [:bar [2]] [:foo [3]]]))
                   (map w/wrap))]
     (are [k v]
          (= (contains? mm k) v)
@@ -73,30 +73,30 @@
 
 (deftest test-wrapped-list-multimap
   (let [lm (w/wrap (f/into-guava-immutable-list-multimap
-                    [[:foo 1] [:foo 2] [:bar 3]]))]
+                    [[:foo [1]] [:foo [2]] [:bar [3 4]]]))]
     (are [k v]
          (= (get lm k) v)
          :foo  (list 1 2)
          :quux (list))
-    (is (= (list 3) (lm :bar)))))
+    (is (= (list 3 4) (lm :bar)))))
 
 (deftest test-wrapped-multimap
   (let [mm (w/wrap (f/into-guava-immutable-multimap
-                    [[:foo 1] [:foo 2] [:bar 3]]))]
+                    [[:foo [1]] [:foo [2]] [:bar [3 4]]]))]
     (are [k v]
          (= (get mm k) v)
          :foo  (list 1 2)
          :quux (list))
-    (is (= (list 3) (mm :bar)))))
+    (is (= (list 3 4) (mm :bar)))))
 
 (deftest test-wrapped-set-multimap
   (let [sm (w/wrap (f/into-guava-immutable-set-multimap
-                    [[:foo 1] [:foo 2] [:bar 3]]))]
+                    [[:foo [1]] [:foo [2]] [:bar [3 4]]]))]
     (are [k v]
          (= (get sm k) v)
          :foo  #{1 2}
          :quux #{})
-    (is (= #{3} (sm :bar)))))
+    (is (= #{3 4} (sm :bar)))))
 
 (deftest test-wrapped-multiset
   (let [ms (w/wrap (f/into-guava-immutable-multiset [:foo :bar :foo]))]

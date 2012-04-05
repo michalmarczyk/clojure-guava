@@ -32,14 +32,17 @@
     (val o)
     (nth o 1)))
 
-(defn put-call [map? builder-sym items-sym]
-  (if-not map?
-    `(.add ~builder-sym (first ~items-sym))
-    `(.put ~builder-sym
-           (key* (first ~items-sym))
-           (val* (first ~items-sym)))))
+(defn put-call [put-call-type builder-sym items-sym]
+  (case put-call-type
+    :map `(.put ~builder-sym
+                (key* (first ~items-sym))
+                (val* (first ~items-sym)))
+    :multimap `(.putAll ~builder-sym
+                        (key* (first ~items-sym))
+                        (val* (first ~items-sym)))
+    :default `(.add ~builder-sym (first ~items-sym))))
 
-(defmacro define-into-factory [class-name map? ordered?]
+(defmacro define-into-factory [class-name put-call-type ordered?]
   (let [builder-sym 'builder ;(gensym "builder")
         items-sym   'items   ;(gensym "items")
         docstring (str "Collects the given items into a "
@@ -50,10 +53,10 @@
        (let [~builder-sym (. ~class-name ~(if ordered? 'naturalOrder 'builder))]
          (loop [~items-sym (seq ~items-sym)]
            (if ~items-sym
-             (do ~(put-call map? builder-sym items-sym)
+             (do ~(put-call put-call-type builder-sym items-sym)
                  (recur (next ~items-sym)))
              (.build ~builder-sym)))))))
 
 (defmacro define-into-factories [& descs]
-  `(do ~@(for [[class-name map? ordered?] (partition 3 descs)]
-           `(define-into-factory ~class-name ~map? ~ordered?))))
+  `(do ~@(for [[class-name put-call-type ordered?] (partition 3 descs)]
+           `(define-into-factory ~class-name ~put-call-type ~ordered?))))

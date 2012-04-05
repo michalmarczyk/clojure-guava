@@ -16,11 +16,11 @@
 
 (deftest test-immutable-list-multimap
   (let [gilmm (f/into-guava-immutable-list-multimap
-               [[:foo 1] (first {:foo 2}) [:bar 3]])]
+               [[:foo [1]] (first {:foo [2]}) [:bar [3 4]]])]
     (are [k vs]
          (= (vec (.get gilmm k)) vs)
          :foo  [1 2]
-         :bar  [3]
+         :bar  [3 4]
          :quux [])))
 
 (deftest test-immutable-map
