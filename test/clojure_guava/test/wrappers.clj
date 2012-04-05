@@ -109,4 +109,9 @@
          (= (get ms k) v)
          :foo  :foo
          :quux nil)
-    (is (= [:foo :foo :bar] (seq ms)))))
+    (is (= [:foo :foo :bar] (seq ms)))
+    (are [k c]
+         (== (w/occurrences ms k) c)
+         :foo  2
+         :bar  1
+         :quux 0)))

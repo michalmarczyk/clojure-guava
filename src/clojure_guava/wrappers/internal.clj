@@ -21,6 +21,9 @@
 (defprotocol PBiMap
   (-invert [this]))
 
+(defprotocol PMultiset
+  (-occurrences [this entry]))
+
 (defn not-implemented [m]
   (throw (RuntimeException. (format "%s not implemented" m))))
 
@@ -238,7 +241,11 @@
   (extra-impls (assoc specs :type :map)))
 
 (defmethod extra-impls :multiset [specs]
-  (extra-impls (assoc specs :type :set)))
+  (concat
+   `(PMultiset
+     (~'-occurrences [~'this ~'entry]
+                     (.count (-unwrap ~'this) ~'entry)))
+   (extra-impls (assoc specs :type :set))))
 
 (defmacro define-wrapper
   "Define a Clojure wrapper for the immutable Guava collection type indicated

@@ -28,6 +28,12 @@
     (.inverse bimap)
     (-invert bimap)))
 
+(defn occurrences
+  "Returns the number of occurrences of the given entry in the given
+   multiset."
+  [multiset entry]
+  (-occurrences multiset entry))
+
 (define-wrappers
   BiMap        :bimap
   List         :list
