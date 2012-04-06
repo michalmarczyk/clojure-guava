@@ -24,8 +24,8 @@
 (defn invert
   "Inverts a (possibly wrapped) Guava ImmutableBiMap."
   [bimap]
-  (if (instance? com.google.common.collect.ImmutableBiMap bimap)
-    (.inverse bimap)
+  (if (instance? ImmutableBiMap bimap)
+    (.inverse ^ImmutableBiMap bimap)
     (-invert bimap)))
 
 (define-wrappers

@@ -139,7 +139,7 @@
   (concat
    `(PBiMap
      (~'-invert [~'this]
-                (with-meta (-wrap (.inverse (-unwrap ~'this)))
+                (with-meta (-wrap (.inverse ^ImmutableBiMap (-unwrap ~'this)))
                   (meta ~'this))))
    (extra-impls (assoc specs :type :map))))
 
@@ -236,8 +236,12 @@
     (~'subList [~'this ~'from ~'to]
                (-wrap (.subList ~wrapped-object-field-name ~'from ~'to)))))
 
-(defmethod extra-impls :multimap [specs]
-  (extra-impls (assoc specs :type :map)))
+(defmethod extra-impls :multimap [{:keys [wrapped-object-field-name] :as specs}]
+  (map (fn [item]
+         (if-not (and (seq? item) (= 'entrySet (first item)))
+           item
+           `(entrySet [~'this] (.entrySet ^Multimap ~'this))))
+       (extra-impls (assoc specs :type :map))))
 
 (defmethod extra-impls :multiset [specs]
   (extra-impls (assoc specs :type :set)))
@@ -276,10 +280,10 @@
          (extend-protocol PWrap
            ~wrapped-class-name
            (~'-wrap [~'g] (new ~wrapping-type-name ~'g {})))
-         (defmethod print-method ~wrapping-type-name [o# writer#]
+         (defmethod print-method ~wrapping-type-name [o# ^java.io.Writer writer#]
            (.write writer#
                    (str "#<" ~(name wrapping-type-name)
-                        " " (.toString (-unwrap o#)) ">"))))))
+                        " " (.toString ^Object (-unwrap o#)) ">"))))))
 
 (defmacro define-wrappers [& suffixes-and-types]
   `(do ~@(map (partial list* `define-wrapper)

@@ -32,28 +32,31 @@
     (val o)
     (nth o 1)))
 
-(defn put-call [put-call-type builder-sym items-sym]
+(defn put-call [put-call-type class-name builder-sym items-sym]
   (case put-call-type
     :map `(.put ~builder-sym
                 (key* (first ~items-sym))
                 (val* (first ~items-sym)))
-    :multimap `(.putAll ~builder-sym
+    :multimap `(.putAll ~(with-meta builder-sym
+                           {:tag (Class/forName
+                                  (str (.getName ^Class (resolve class-name))
+                                       "$Builder"))})
                         (key* (first ~items-sym))
-                        (val* (first ~items-sym)))
+                        ^Iterable (val* (first ~items-sym)))
     :default `(.add ~builder-sym (first ~items-sym))))
 
 (defmacro define-into-factory [class-name put-call-type ordered?]
   (let [builder-sym 'builder ;(gensym "builder")
         items-sym   'items   ;(gensym "items")
         docstring (str "Collects the given items into a "
-                       (.getName (resolve class-name)) ".")]
+                       (.getName ^Class (resolve class-name)) ".")]
     `(defn ~(prepare-factory-name class-name non-wrapping-factory-name-prefix)
        ~docstring
        [~items-sym]
        (let [~builder-sym (. ~class-name ~(if ordered? 'naturalOrder 'builder))]
          (loop [~items-sym (seq ~items-sym)]
            (if ~items-sym
-             (do ~(put-call put-call-type builder-sym items-sym)
+             (do ~(put-call put-call-type class-name builder-sym items-sym)
                  (recur (next ~items-sym)))
              (.build ~builder-sym)))))))
 
