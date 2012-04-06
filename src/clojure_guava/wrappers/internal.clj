@@ -9,7 +9,7 @@
                                       ImmutableSetMultimap
                                       ImmutableSortedMap
                                       ImmutableSortedSet)
-           (clojure.lang IPersistentMap)
+           (clojure.lang IPersistentMap MapEntry)
            (java.util Map$Entry)))
 
 (defprotocol PWrap
@@ -99,7 +99,9 @@
   `(clojure.lang.Seqable
     ~(if-not (= :multimap type)
        `(~'seq [~'this] (seq ~wrapped-object-field-name))
-       `(~'seq [~'this] (seq (.entries ~wrapped-object-field-name))))))
+       `(~'seq [~'this]
+               (map #(MapEntry. % (.get ~wrapped-object-field-name %))
+                    (.keySet ~wrapped-object-field-name))))))
 
 (defmethod implement :counted [{:keys [wrapped-object-field-name]} _]
   `(clojure.lang.Counted

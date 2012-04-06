@@ -78,7 +78,9 @@
          (= (get lm k) v)
          :foo  (list 1 2)
          :quux (list))
-    (is (= (list 3 4) (lm :bar)))))
+    (is (= (list 3 4) (lm :bar)))
+    (is (= (some #(if (= (key %) :foo) %) lm)
+           [:foo (list 1 2)]))))
 
 (deftest test-wrapped-multimap
   (let [mm (w/wrap (f/into-guava-immutable-multimap
@@ -87,7 +89,9 @@
          (= (get mm k) v)
          :foo  (list 1 2)
          :quux (list))
-    (is (= (list 3 4) (mm :bar)))))
+    (is (= (list 3 4) (mm :bar)))
+    (is (= (some #(if (= (key %) :foo) %) mm)
+           [:foo (list 1 2)]))))
 
 (deftest test-wrapped-set-multimap
   (let [sm (w/wrap (f/into-guava-immutable-set-multimap
@@ -96,7 +100,9 @@
          (= (get sm k) v)
          :foo  #{1 2}
          :quux #{})
-    (is (= #{3 4} (sm :bar)))))
+    (is (= #{3 4} (sm :bar)))
+    (is (= (some #(if (= (key %) :foo) %) sm)
+           [:foo #{1 2}]))))
 
 (deftest test-wrapped-multiset
   (let [ms (w/wrap (f/into-guava-immutable-multiset [:foo :bar :foo]))]
