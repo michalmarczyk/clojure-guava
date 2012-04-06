@@ -100,7 +100,7 @@
     ~(if-not (= :multimap type)
        `(~'seq [~'this] (seq ~wrapped-object-field-name))
        `(~'seq [~'this]
-               (map #(MapEntry. % (.get ~wrapped-object-field-name %))
+               (map #(MapEntry. % (-wrap (.get ~wrapped-object-field-name %)))
                     (.keySet ~wrapped-object-field-name))))))
 
 (defmethod implement :counted [{:keys [wrapped-object-field-name]} _]
