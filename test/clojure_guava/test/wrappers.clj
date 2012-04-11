@@ -116,3 +116,10 @@
          :foo  :foo
          :quux nil)
     (is (= [:foo :foo :bar] (seq ms)))))
+
+(deftest test-equals
+  (let [mm (w/wrap (f/into-guava-immutable-multimap {:foo [1 2 3] :bar [4 5 6]}))]
+    ;; TODO: decide what the correct result is,
+    ;; for now let's make sure this doesn't throw
+    (is (do (.equals mm {:foo [1 2 3] :bar [4 5 6]}) true))
+    (is (= true (.equals mm mm)))))

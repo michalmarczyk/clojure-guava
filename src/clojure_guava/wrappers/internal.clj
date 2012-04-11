@@ -123,7 +123,7 @@
   [{:keys [wrapped-class-name wrapping-type-name wrapped-object-field-name]} _]
   `(java.lang.Object
     (~'equals [~'this ~'that]
-              (if (satisfies? PUnwrap ~'that)
+              (if (instance? clojure_guava.wrappers.internal.PUnwrap ~'that) #_(satisfies? PUnwrap ~'that)
                 (.equals ~wrapped-object-field-name (-unwrap ~'that))
                 (.equals ~wrapped-object-field-name ~'that)))
     (~'hashCode [~'this] (.hashCode ~wrapped-object-field-name))))
