@@ -168,7 +168,10 @@
 
     (~'empty [~'this] {})
 
-    (~'equiv [~'this ~'that] (.equals ~wrapped-object-field-name ~'that))))
+    (~'equiv [~'this ~'that]
+             (if (instance? clojure_guava.wrappers.internal.PUnwrap ~'that)
+               (.equals ~wrapped-object-field-name (-unwrap ~'that))
+               (.equals ~wrapped-object-field-name ~'that)))))
 
 (defmethod extra-impls :set [{:keys [wrapped-object-field-name]}]
   `(java.util.Set
@@ -196,7 +199,10 @@
 
     (~'empty [~'this] #{})
 
-    (~'equiv [~'this ~'that] (.equals ~wrapped-object-field-name ~'that))
+    (~'equiv [~'this ~'that]
+             (if (instance? clojure_guava.wrappers.internal.PUnwrap ~'that)
+               (.equals ~wrapped-object-field-name (-unwrap ~'that))
+               (.equals ~wrapped-object-field-name ~'that)))
 
     clojure.lang.IPersistentSet
 
