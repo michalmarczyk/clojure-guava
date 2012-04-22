@@ -251,7 +251,7 @@
    by the suffix.
 
    * suffix is the part of the Guava class name following `Immutable'
-   * type is one of :set, :multiset, :map, :multimap"
+   * type is one of :set, :multiset, :map, :multimap, :bimap"
   [suffix type]
   (let [wrapped-class-name (symbol (str "Immutable" suffix))
         wrapping-type-name (symbol (str "WrappedGuava" suffix))
