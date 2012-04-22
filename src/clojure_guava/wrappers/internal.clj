@@ -74,12 +74,12 @@
     :multimap
     `(clojure.lang.ILookup
       (~'valAt [~'this ~'key]
-               (-wrap (.get ~wrapped-object-field-name ~'key)))
+               (if (.containsKey ~wrapped-object-field-name ~'key)
+                 (-wrap (.get ~wrapped-object-field-name ~'key))))
       (~'valAt [~'this ~'key ~'not-found]
-               (let [val# (.get ~wrapped-object-field-name ~'key)]
-                 (if (seq val#)
-                   val#
-                   ~'not-found))))
+               (if (.containsKey ~wrapped-object-field-name ~'key)
+                 (-wrap (.get ~wrapped-object-field-name ~'key))
+                 ~'not-found)))
 
     ()))
 

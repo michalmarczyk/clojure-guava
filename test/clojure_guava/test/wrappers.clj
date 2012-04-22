@@ -77,7 +77,7 @@
     (are [k v]
          (= (get lm k) v)
          :foo  (list 1 2)
-         :quux (list))
+         :quux nil)
     (is (= (list 3 4) (lm :bar)))
     (is (= (some #(if (= (key %) :foo) %) lm)
            [:foo (list 1 2)]))))
@@ -88,7 +88,7 @@
     (are [k v]
          (= (get mm k) v)
          :foo  (list 1 2)
-         :quux (list))
+         :quux nil)
     (is (= (list 3 4) (mm :bar)))
     (is (= (some #(if (= (key %) :foo) %) mm)
            [:foo (list 1 2)]))))
@@ -99,7 +99,7 @@
     (are [k v]
          (= (get sm k) v)
          :foo  #{1 2}
-         :quux #{})
+         :quux nil)
     (is (= #{3 4} (sm :bar)))
     (is (= (some #(if (= (key %) :foo) %) sm)
            [:foo #{1 2}]))))
