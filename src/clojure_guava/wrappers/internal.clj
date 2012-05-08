@@ -13,13 +13,13 @@
            (java.util Map$Entry)))
 
 (defprotocol PWrap
-  (-wrap [this]))
+  (do-wrap [this]))
 
 (defprotocol PUnwrap
-  (-unwrap [this]))
+  (do-unwrap [this]))
 
 (defprotocol PBiMap
-  (-invert [this]))
+  (do-invert [this]))
 
 (defn not-implemented [m]
   (throw (RuntimeException. (format "%s not implemented" m))))
@@ -75,10 +75,10 @@
     `(clojure.lang.ILookup
       (~'valAt [~'this ~'key]
                (if (.containsKey ~wrapped-object-field-name ~'key)
-                 (-wrap (.get ~wrapped-object-field-name ~'key))))
+                 (do-wrap (.get ~wrapped-object-field-name ~'key))))
       (~'valAt [~'this ~'key ~'not-found]
                (if (.containsKey ~wrapped-object-field-name ~'key)
-                 (-wrap (.get ~wrapped-object-field-name ~'key))
+                 (do-wrap (.get ~wrapped-object-field-name ~'key))
                  ~'not-found)))
 
     ()))
@@ -100,7 +100,7 @@
     ~(if-not (= :multimap type)
        `(~'seq [~'this] (seq ~wrapped-object-field-name))
        `(~'seq [~'this]
-               (map #(MapEntry. % (-wrap (.get ~wrapped-object-field-name %)))
+               (map #(MapEntry. % (do-wrap (.get ~wrapped-object-field-name %)))
                     (.keySet ~wrapped-object-field-name))))))
 
 (defmethod implement :counted [{:keys [wrapped-object-field-name]} _]
@@ -124,12 +124,12 @@
   `(java.lang.Object
     (~'equals [~'this ~'that]
               (if (instance? clojure_guava.wrappers.internal.PUnwrap ~'that) #_(satisfies? PUnwrap ~'that)
-                (.equals ~wrapped-object-field-name (-unwrap ~'that))
+                (.equals ~wrapped-object-field-name (do-unwrap ~'that))
                 (.equals ~wrapped-object-field-name ~'that)))
     (~'hashCode [~'this] (.hashCode ~wrapped-object-field-name))))
 
 (defmethod implement :punwrap [{:keys [wrapped-object-field-name]} _]
-  `(PUnwrap (~'-unwrap [~'this] ~wrapped-object-field-name)))
+  `(PUnwrap (~'do-unwrap [~'this] ~wrapped-object-field-name)))
 
 (defmulti extra-impls :type)
 
@@ -138,9 +138,9 @@
 (defmethod extra-impls :bimap [specs]
   (concat
    `(PBiMap
-     (~'-invert [~'this]
-                (with-meta (-wrap (.inverse ^ImmutableBiMap (-unwrap ~'this)))
-                  (meta ~'this))))
+     (~'do-invert [~'this]
+                  (with-meta (do-wrap (.inverse ^ImmutableBiMap (do-unwrap ~'this)))
+                    (meta ~'this))))
    (extra-impls (assoc specs :type :map))))
 
 (defmethod extra-impls :map [{:keys [wrapped-object-field-name]}]
@@ -170,7 +170,7 @@
 
     (~'equiv [~'this ~'that]
              (if (instance? clojure_guava.wrappers.internal.PUnwrap ~'that)
-               (.equals ~wrapped-object-field-name (-unwrap ~'that))
+               (.equals ~wrapped-object-field-name (do-unwrap ~'that))
                (.equals ~wrapped-object-field-name ~'that)))))
 
 (defmethod extra-impls :set [{:keys [wrapped-object-field-name]}]
@@ -201,7 +201,7 @@
 
     (~'equiv [~'this ~'that]
              (if (instance? clojure_guava.wrappers.internal.PUnwrap ~'that)
-               (.equals ~wrapped-object-field-name (-unwrap ~'that))
+               (.equals ~wrapped-object-field-name (do-unwrap ~'that))
                (.equals ~wrapped-object-field-name ~'that)))
 
     clojure.lang.IPersistentSet
@@ -240,7 +240,7 @@
                              [:toArray 1])
 
     (~'subList [~'this ~'from ~'to]
-               (-wrap (.subList ~wrapped-object-field-name ~'from ~'to)))))
+               (do-wrap (.subList ~wrapped-object-field-name ~'from ~'to)))))
 
 (defmethod extra-impls :multimap [{:keys [wrapped-object-field-name] :as specs}]
   (map (fn [item]
@@ -285,11 +285,11 @@
            ~@impls)
          (extend-protocol PWrap
            ~wrapped-class-name
-           (~'-wrap [~'g] (new ~wrapping-type-name ~'g {})))
+           (~'do-wrap [~'g] (new ~wrapping-type-name ~'g {})))
          (defmethod print-method ~wrapping-type-name [o# ^java.io.Writer writer#]
            (.write writer#
                    (str "#<" ~(name wrapping-type-name)
-                        " " (.toString ^Object (-unwrap o#)) ">"))))))
+                        " " (.toString ^Object (do-unwrap o#)) ">"))))))
 
 (defmacro define-wrappers [& suffixes-and-types]
   `(do ~@(map (partial list* `define-wrapper)

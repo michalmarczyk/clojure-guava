@@ -14,19 +14,19 @@
 (defn wrap
   "Wraps guava-object in the appropriate wrapper type."
   [guava-object]
-  (-wrap guava-object))
+  (do-wrap guava-object))
 
 (defn unwrap
   "Unwraps a wrapped Guava object."
   [wrapped-guava-object]
-  (-unwrap wrapped-guava-object))
+  (do-unwrap wrapped-guava-object))
 
 (defn invert
   "Inverts a (possibly wrapped) Guava ImmutableBiMap."
   [bimap]
   (if (instance? ImmutableBiMap bimap)
     (.inverse ^ImmutableBiMap bimap)
-    (-invert bimap)))
+    (do-invert bimap)))
 
 (define-wrappers
   BiMap        :bimap
